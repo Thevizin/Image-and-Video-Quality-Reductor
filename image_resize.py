@@ -1,19 +1,14 @@
 from PIL import Image
-import cv2
 import numpy as np
 import matplotlib.pyplot as plt
 import cv2
 import os
 import re
-from moviepy.editor import VideoFileClip, AudioFileClip
 import numpy as np
 import matplotlib.pyplot as plt
 from scipy.io import wavfile
-from scipy.fft import fft, ifft, fftfreq, fftshift
 from scipy.io.wavfile import write
 from IPython.display import Audio
-from moviepy.editor import AudioFileClip
-from pydub import AudioSegment
 
 class ImageResize:
 
@@ -28,8 +23,14 @@ class ImageResize:
         self.image = Image.open(local_image)
         return self.image
     
-    def reduction_amplifier_pixel(is_reduction, self, fator):
-        imagem = np.array(self.image)
+    def reduction_amplifier_pixel(self, is_reduction, fator, imagem=None):
+        if imagem is None:
+            if self.image is None:
+                raise ValueError("Nenhuma imagem fornecida ou carregada.")
+            imagem = np.array(self.image)
+        else:
+            imagem = np.array(imagem)
+            
         H, W = imagem.shape[:2]
         if is_reduction:
             # Reduzindo: nova dimensão = original / fator
@@ -60,8 +61,12 @@ class ImageResize:
         return self.nova_imagem
 
     def save_image(self, local=None):
-        if local:
-            self.imageReciever(local)
-        else:
-            local = input('Digite o local do arquivo: ')
+        if not local:
+            os.makedirs("output", exist_ok=True)
+            local = os.path.join("output", "saida.png")
+
+        # Converte a imagem processada para objeto PIL e salva
+        img_to_save = Image.fromarray(self.nova_imagem)
+        img_to_save.save(local)
+        print(f"✅ Imagem salva em: {local}")
 
